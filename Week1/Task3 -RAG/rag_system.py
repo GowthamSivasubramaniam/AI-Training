@@ -17,8 +17,10 @@ from chromadb.config import Settings
 
 try:
     nltk.data.find('tokenizers/punkt')
+    nltk.download("punkt_tab", quiet=True)
 except LookupError:
     nltk.download('punkt')
+    nltk.download("punkt_tab", quiet=True)
 
 from PyPDF2 import PdfReader
 
@@ -244,8 +246,6 @@ Answer:"""
                     'metadata': metadata,
                     'similarity': 1 - distance 
                 })
-                print(f"\n[Context {i+1}] Similarity: {1-distance:.3f}")
-                print(f"Text: {doc[:200]}...")
         
         context_text = "\n\n".join([f"[Context {i+1}]: {ctx['text']}" 
                                      for i, ctx in enumerate(contexts)])
@@ -267,10 +267,10 @@ if __name__ == "__main__":
     rag = RAGSystem(window_size=3, overlap=1)
     
     print("\nTo ingest a document, use:")
-    rag.ingest_document("Week1/Task3/docs.pdf")
+    rag.ingest_document("docs.pdf")
     while(True):
-        string = input()
+        string = input("Please enter the query : ")
         if string.upper() != "BYE":
-            rag.query(input())
+            rag.query(string)
         else:
             break
