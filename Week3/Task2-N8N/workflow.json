@@ -1,0 +1,193 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "0a946cfb-d890-481a-bddd-8d5b3c5fb4f2",
+      "name": "When chat message received",
+      "webhookId": "324d733e-f822-498e-a7d4-6ec7a1b4acae"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an email automation assistant. Follow these steps IN ORDER:\n\nSTEP 1 - Query LookupDB for the user making the request:\n- Extract the user's name/identifier from the chat message\n- Use LookupDB to retrieve: user's name, role, email, and details\n- Store this information (this is the SENDER/REQUESTER)\n\nSTEP 2 - Query LookupDB for the recipient:\n- Retrieve the admin's email address from LookupDB , use the email of the one who has a role admin \n- This email should be used as the emailRecipient\n\nSTEP 3 - Compose the email:\n- Subject: \"[User Role] - Query from [User Name] - [Brief Issue]\"\n- Message body:\n  * User's name from Step 1\n  * User's role from Step 1\n  * User's email from Step 1\n  * Complete query/issue details\n  * Professional formatting\n\nSTEP 4 - Send via Gmail:\n- emailRecipient: Use the admin email retrieved from LookupDB in Step 2 dont use (admin@example.com\")\n- subject: From Step 3\n- message: From Step 3\n\nCRITICAL: You MUST query LookupDB twice:\n1. First to get the requesting user's info\n2. Second to get an admin's email for emailRecipient"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        560,
+        0
+      ],
+      "id": "f37f9aff-4cca-4680-a55d-13a407ca13ef",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        432,
+        224
+      ],
+      "id": "20628831-ae3b-4346-a1d2-e8938630f73d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "################",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        224
+      ],
+      "id": "5a5c8480-cf31-48c7-9c5d-230db0f37630",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI('emailRecipient') }}",
+        "subject": "={{ $fromAI('subject') }}",
+        "message": "={{ $fromAI('message') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        224
+      ],
+      "id": "3b179ee8-b4e6-4a9f-856e-34b542b2c927",
+      "name": "Send a message in Gmail",
+      "webhookId": "a138136e-c535-42dd-8a09-7ae8be837f78",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6wRoTQGkEtyye5QE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.escuelajs.co/api/v1/users",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        816,
+        224
+      ],
+      "id": "41c568aa-1064-4edb-8c9d-28bdd10a6725",
+      "name": "LookupDB"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        912,
+        0
+      ],
+      "id": "63142973-5db8-4e9c-9a49-a835d4779bbe",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LookupDB": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "f7853727-b750-4dfe-9615-1ebf8035a59d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca26af30538a4842beacf564e6f53bea20cf764ef7546f2628416894a5946a17"
+  },
+  "id": "5BEM0qqMw3e1yeh5WSDN5",
+  "tags": []
+}
