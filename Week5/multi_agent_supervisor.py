@@ -392,9 +392,6 @@ def router_agent(state: AgentState) -> str:
     return state
 
 def main():
-    os.environ['AWS_ACCESS_KEY_ID'] = 'AKIA47GB73VYWPKDGL2F'
-    os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
-    os.environ['AWS_DEFAULT_REGION'] = "us-east-1"
     workflow = StateGraph(AgentState)
     workflow.add_node("routing_agent", router_agent) 
     workflow.add_node("it_agent", it_agent)
