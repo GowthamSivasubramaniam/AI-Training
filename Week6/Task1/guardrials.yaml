@@ -1,0 +1,9 @@
+rules:
+  - description: Avoid offensive language
+    type: response
+    condition: contains_profanity(response)
+    action: reject(response) and log("Offensive language detected")
+  - description: Ensure responses are factually correct
+    type: response
+    condition: is_factually_incorrect(response)
+    action: reject(response) and log("Factually incorrect response detected")
